@@ -1,0 +1,2 @@
+# eduhost
+host uni
