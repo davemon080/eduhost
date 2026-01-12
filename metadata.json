@@ -1,0 +1,8 @@
+{
+  "name": "EduStream Pro",
+  "description": "A high-end multi-tenant university online learning platform with progressive profiling, community feeds, and live virtual classrooms.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
