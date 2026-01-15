@@ -12,10 +12,18 @@ import {
   HelpCircle, 
   FileText, 
   Award, 
-  CreditCard 
+  CreditCard,
+  Video,
+  Play,
+  Trash2,
+  Library,
+  ArrowLeft
 } from 'lucide-react';
 import Profile from './Profile';
 import SettingsView from './Settings';
+import Badges from './Badges';
+import Fees from './Fees';
+import HelpCenter from './HelpCenter';
 
 interface YouProps {
   user: UserProfile;
@@ -24,32 +32,93 @@ interface YouProps {
 }
 
 const You: React.FC<YouProps> = ({ user, onUpdate, onLogout }) => {
-  const [subView, setSubView] = useState<'hub' | 'profile' | 'settings'>('hub');
+  const [subView, setSubView] = useState<'hub' | 'profile' | 'settings' | 'library' | 'badges' | 'fees' | 'help'>('hub');
 
-  if (subView === 'profile') {
+  const renderSubView = () => {
+    switch (subView) {
+      case 'profile':
+        return <Profile user={user} onUpdate={onUpdate} onLogout={onLogout} />;
+      case 'settings':
+        return <SettingsView user={user} onUpdate={onUpdate} />;
+      case 'badges':
+        return <Badges />;
+      case 'fees':
+        return <Fees />;
+      case 'help':
+        return <HelpCenter />;
+      default:
+        return null;
+    }
+  };
+
+  if (subView !== 'hub' && subView !== 'library') {
     return (
       <div className="animate-in fade-in slide-in-from-right-4 duration-300">
         <button 
           onClick={() => setSubView('hub')}
-          className="mb-6 flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 transition-colors"
+          className="mb-8 flex items-center gap-3 text-slate-500 font-black text-xs uppercase tracking-widest hover:text-slate-900 transition-all group"
         >
-          <ChevronRight size={18} className="rotate-180" /> Back to Hub
+          <div className="p-2 bg-white rounded-xl shadow-sm group-hover:-translate-x-1 transition-transform">
+            <ArrowLeft size={18} />
+          </div>
+          Back to Hub
         </button>
-        <Profile user={user} onUpdate={onUpdate} onLogout={onLogout} />
+        {renderSubView()}
       </div>
     );
   }
 
-  if (subView === 'settings') {
+  if (subView === 'library') {
     return (
-      <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+      <div className="animate-in fade-in slide-in-from-right-4 duration-300 max-w-4xl mx-auto">
         <button 
           onClick={() => setSubView('hub')}
-          className="mb-6 flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 transition-colors"
+          className="mb-8 flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 transition-colors"
         >
           <ChevronRight size={18} className="rotate-180" /> Back to Hub
         </button>
-        <SettingsView user={user} onUpdate={onUpdate} />
+        
+        <div className="flex items-center justify-between mb-8">
+           <h2 className="text-3xl font-black text-slate-900 tracking-tight">Personal Library</h2>
+           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{user.recordings?.length || 0} Recordings</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {(user.recordings || []).map(rec => (
+            <div key={rec.id} className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm group hover:shadow-xl transition-all">
+              <div className="aspect-video relative overflow-hidden">
+                <img src={rec.thumbnail} className="w-full h-full object-cover transition-transform group-hover:scale-105" alt={rec.title} />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-blue-600 shadow-2xl">
+                      <Play fill="currentColor" size={24} />
+                   </div>
+                </div>
+                <div className="absolute bottom-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg text-white text-[10px] font-black uppercase tracking-widest">
+                  {rec.duration}
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{rec.courseCode}</span>
+                  <span className="text-[10px] font-black text-slate-300 uppercase">{rec.date}</span>
+                </div>
+                <h4 className="font-black text-slate-800 leading-tight mb-4">{rec.title}</h4>
+                <div className="flex gap-2">
+                   <button className="flex-1 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-colors">Play Recording</button>
+                   <button className="p-3 bg-slate-50 text-slate-300 hover:text-red-500 rounded-xl transition-colors"><Trash2 size={16}/></button>
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {(!user.recordings || user.recordings.length === 0) && (
+            <div className="col-span-full py-24 text-center bg-white border-4 border-dashed border-slate-50 rounded-[3rem]">
+               <Video size={48} className="mx-auto text-slate-100 mb-4" />
+               <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Your library is currently empty</p>
+               <p className="text-slate-300 text-[10px] font-bold mt-2 uppercase">Record live sessions to save them here</p>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -59,21 +128,21 @@ const You: React.FC<YouProps> = ({ user, onUpdate, onLogout }) => {
       label: 'Account & Identity', 
       items: [
         { id: 'profile', label: 'Detailed Profile', icon: User, color: 'text-blue-600 bg-blue-50', onClick: () => setSubView('profile') },
-        { id: 'badges', label: 'Academic Badges', icon: Award, color: 'text-amber-600 bg-amber-50' },
+        { id: 'badges', label: 'Academic Badges', icon: Award, color: 'text-amber-600 bg-amber-50', onClick: () => setSubView('badges') },
       ]
     },
     { 
-      label: 'Preferences', 
+      label: 'Content Hub', 
+      items: [
+        { id: 'library', label: 'Learning Library', icon: Library, color: 'text-indigo-600 bg-indigo-50', onClick: () => setSubView('library') },
+        { id: 'fees', label: 'Fees & Payments', icon: CreditCard, color: 'text-emerald-600 bg-emerald-50', onClick: () => setSubView('fees') },
+      ]
+    },
+    { 
+      label: 'Portal Controls', 
       items: [
         { id: 'settings', label: 'App Settings', icon: Settings, color: 'text-slate-600 bg-slate-100', onClick: () => setSubView('settings') },
-        { id: 'billing', label: 'Fees & Payments', icon: CreditCard, color: 'text-indigo-600 bg-indigo-50' },
-      ]
-    },
-    { 
-      label: 'Support', 
-      items: [
-        { id: 'help', label: 'Help Center', icon: HelpCircle, color: 'text-green-600 bg-green-50' },
-        { id: 'terms', label: 'Institutional Policy', icon: FileText, color: 'text-slate-400 bg-slate-100' },
+        { id: 'help', label: 'Help Center', icon: HelpCircle, color: 'text-green-600 bg-green-50', onClick: () => setSubView('help') },
       ]
     }
   ];
@@ -99,7 +168,6 @@ const You: React.FC<YouProps> = ({ user, onUpdate, onLogout }) => {
         </button>
       </div>
 
-      {/* Navigation Sections */}
       <div className="space-y-8">
         {sections.map(section => (
           <div key={section.label} className="space-y-3">

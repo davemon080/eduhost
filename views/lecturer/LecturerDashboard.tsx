@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { UserProfile, University, Course } from '../../types';
 import { COURSES } from '../../mockData';
 import { 
@@ -14,7 +14,14 @@ import {
   Monitor,
   Bell,
   ArrowLeft,
-  MoreVertical
+  MoreVertical,
+  LifeBuoy,
+  MessageCircle,
+  Info,
+  ShieldCheck,
+  Zap,
+  // Added Clock to fix the missing import error
+  Clock
 } from 'lucide-react';
 import ManageCourse from './ManageCourse';
 import ManageCommunity from './ManageCommunity';
@@ -32,6 +39,25 @@ interface LecturerDashboardProps {
 const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ user, university, onLogout, onUpdateUser }) => {
   const [activeTab, setActiveTab] = useState('community');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showMiniMenu, setShowMiniMenu] = useState(false);
+
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMiniMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const managedCourses = COURSES.filter(c => user.courses.includes(c.id));
   const activeCourse = COURSES.find(c => c.id === selectedCourseId);
@@ -96,6 +122,12 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ user, university,
     { id: 'schedule', icon: Calendar, label: 'Schedule' },
     { id: 'exams', icon: GraduationCap, label: 'Assessments', count: 12 },
     { id: 'you', icon: User, label: 'You', isAvatar: true },
+  ];
+
+  const facultyAlerts = [
+    { id: 1, title: 'Department Meeting', desc: 'Faculty of Science board meeting at 2:00 PM.', time: 'Just now', icon: ShieldCheck, color: 'text-blue-500 bg-blue-50' },
+    { id: 2, title: 'Grade Submission', desc: 'MTH 101 grades are due by Friday midnight.', time: '2h ago', icon: Clock, color: 'text-amber-500 bg-amber-50' },
+    { id: 3, title: 'Portal Update', desc: 'New analytics dashboard is now live for lecturers.', time: 'Yesterday', icon: Zap, color: 'text-emerald-500 bg-emerald-50' },
   ];
 
   return (
@@ -176,7 +208,7 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ user, university,
       <main className="flex-1 md:ml-72 min-w-0 pb-32 md:pb-12">
         <div className="p-6 md:p-12 overflow-y-auto max-w-[1400px] mx-auto w-full">
           {/* BODY CONTENT HEADER */}
-          <div className="flex items-center justify-between mb-10 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center justify-between mb-10 animate-in fade-in slide-in-from-top-4 duration-500 relative">
             <div className="flex items-center gap-4">
               {selectedCourseId && (
                 <button 
@@ -197,13 +229,78 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ user, university,
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors">
-                <Bell size={24} />
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-slate-50"></span>
-              </button>
-              <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
-                <MoreVertical size={24} />
-              </button>
+              {/* Faculty Notifications */}
+              <div className="relative" ref={notificationRef}>
+                <button 
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className={`relative p-2 transition-all rounded-xl ${showNotifications ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-blue-600 hover:bg-slate-100'}`}
+                >
+                  <Bell size={24} />
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-slate-50"></span>
+                </button>
+
+                {showNotifications && (
+                  <div className="absolute right-0 mt-3 w-80 bg-white border border-slate-100 rounded-[2rem] shadow-2xl z-[120] animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+                    <div className="p-6 border-b border-slate-50 flex items-center justify-between">
+                       <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Faculty Alerts</h3>
+                    </div>
+                    <div className="divide-y divide-slate-50">
+                      {facultyAlerts.map(a => (
+                        <div key={a.id} className="p-5 flex items-start gap-4 hover:bg-slate-50 transition-colors cursor-pointer group">
+                           <div className={`p-2.5 rounded-xl ${a.color} shrink-0`}>
+                              <a.icon size={18} />
+                           </div>
+                           <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-slate-900 truncate">{a.title}</p>
+                              <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{a.desc}</p>
+                              <p className="text-[10px] font-black text-slate-300 uppercase mt-2">{a.time}</p>
+                           </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button className="w-full py-4 text-[10px] font-black text-blue-600 uppercase tracking-widest hover:bg-blue-50 transition-colors">
+                      Faculty Dashboard View
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Faculty More Menu */}
+              <div className="relative" ref={menuRef}>
+                <button 
+                  onClick={() => setShowMiniMenu(!showMiniMenu)}
+                  className={`p-2 transition-all rounded-xl ${showMiniMenu ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'}`}
+                >
+                  <MoreVertical size={24} />
+                </button>
+
+                {showMiniMenu && (
+                  <div className="absolute right-0 mt-3 w-64 bg-slate-900 rounded-[2rem] shadow-2xl z-[120] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden py-3 border border-white/5">
+                    {[
+                      { icon: Info, label: 'Faculty Directory', onClick: () => {} },
+                      { icon: LifeBuoy, label: 'Admin Support', onClick: () => {} },
+                      { icon: MessageCircle, label: 'Portal Feedback', onClick: () => {} },
+                      { divider: true },
+                      { icon: LogOut, label: 'Institutional Sign Out', onClick: onLogout, danger: true },
+                    ].map((item, i) => (
+                      item.divider ? (
+                        <div key={i} className="h-px bg-white/10 my-2 mx-4" />
+                      ) : (
+                        <button
+                          key={i}
+                          onClick={item.onClick}
+                          className={`w-full flex items-center gap-3 px-6 py-3.5 text-xs font-black uppercase tracking-widest transition-all ${
+                            item.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                          }`}
+                        >
+                          <item.icon size={16} />
+                          {item.label}
+                        </button>
+                      )
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

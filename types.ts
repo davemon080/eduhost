@@ -38,9 +38,17 @@ export interface Course {
   level: string;
   lecturerName: string;
   lessons: Lesson[];
-  // Legacy fields kept for compatibility during migration
   modules: Module[];
   youtubeId: string;
+}
+
+export interface SavedRecording {
+  id: string;
+  title: string;
+  courseCode: string;
+  date: string;
+  duration: string;
+  thumbnail: string;
 }
 
 export interface AcademicRecord {
@@ -62,6 +70,7 @@ export interface UserProfile {
   department: string;
   courses: string[]; 
   progress?: AcademicRecord[];
+  recordings?: SavedRecording[];
   avatar?: string;
   settings?: {
     notifications: boolean;
