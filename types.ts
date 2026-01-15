@@ -12,6 +12,22 @@ export interface University {
   primaryColor: string;
 }
 
+export interface Module {
+  id: string;
+  title: string;
+  fileUrl: string;
+  type: 'PDF' | 'DOC' | 'VIDEO';
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  youtubeId: string;
+  modules: Module[];
+  timestamps?: { time: string; label: string }[];
+}
+
 export interface Course {
   id: string;
   code: string;
@@ -21,15 +37,10 @@ export interface Course {
   department: string;
   level: string;
   lecturerName: string;
+  lessons: Lesson[];
+  // Legacy fields kept for compatibility during migration
   modules: Module[];
   youtubeId: string;
-}
-
-export interface Module {
-  id: string;
-  title: string;
-  fileUrl: string;
-  type: 'PDF' | 'DOC' | 'VIDEO';
 }
 
 export interface AcademicRecord {

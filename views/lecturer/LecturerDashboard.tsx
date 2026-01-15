@@ -13,7 +13,8 @@ import {
   User,
   Monitor,
   Bell,
-  ArrowLeft
+  ArrowLeft,
+  MoreVertical
 } from 'lucide-react';
 import ManageCourse from './ManageCourse';
 import ManageCommunity from './ManageCommunity';
@@ -140,7 +141,7 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ user, university,
         </div>
       </aside>
 
-      {/* MOBILE BOTTOM MENU - MATCHING IMAGE STYLE WITH UPDATED LABELS */}
+      {/* MOBILE BOTTOM MENU - DARK STYLE */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-[#1a1a1a]/95 backdrop-blur-xl border-t border-white/5 pt-3 pb-8 px-6">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           {navItems.map(item => (
@@ -157,62 +158,55 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ user, university,
                 ) : (
                   <item.icon size={26} strokeWidth={activeTab === item.id ? 2.5 : 2} />
                 )}
-                
                 {item.count && (
                   <span className="absolute -top-1.5 -right-3 px-1.5 py-0.5 bg-[#22c55e] text-black text-[10px] font-bold rounded-full min-w-[18px] text-center">
                     {item.count}
                   </span>
                 )}
-                
                 {item.badge && !item.count && (
                   <span className="absolute top-0 -right-0.5 w-2 h-2 bg-[#22c55e] rounded-full border border-[#1a1a1a]"></span>
                 )}
               </div>
-              <span className="text-[10px] font-medium tracking-tight">
-                {item.label}
-              </span>
+              <span className="text-[10px] font-medium tracking-tight">{item.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      <main className="flex-1 md:ml-72 min-w-0 p-6 md:p-12 pb-32 md:pb-12">
-        <header className="flex items-center justify-between mb-12">
-           <div className="flex items-center gap-4">
+      <main className="flex-1 md:ml-72 min-w-0 pb-32 md:pb-12">
+        <div className="p-6 md:p-12 overflow-y-auto max-w-[1400px] mx-auto w-full">
+          {/* BODY CONTENT HEADER */}
+          <div className="flex items-center justify-between mb-10 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex items-center gap-4">
               {selectedCourseId && (
                 <button 
                   onClick={handleBackNavigation}
-                  className="p-3 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all shadow-xl flex items-center justify-center animate-in slide-in-from-left-4"
+                  className="p-3 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all shadow-xl flex items-center justify-center"
                 >
                   <ArrowLeft size={20} />
                 </button>
               )}
               <div className="flex flex-col">
-                <h2 className="text-2xl font-black text-slate-900 capitalize tracking-tight leading-none">
-                  {activeTab === 'you' ? 'You' : activeTab.replace('-', ' ')}
-                </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 hidden sm:block">
+                <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-none capitalize">
+                  {activeTab === 'you' ? 'Management Hub' : activeTab.replace('-', ' ')}
+                </h1>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">
                   {university.name} • Institutional Admin
-                </span>
+                </p>
               </div>
-           </div>
-           <div className="flex items-center gap-4">
-              <div className="hidden sm:flex relative items-center">
-                 <Search size={18} className="absolute left-4 text-slate-400" />
-                 <input 
-                  type="text" 
-                  placeholder="Universal search..." 
-                  className="pl-12 pr-6 py-3 bg-white border border-slate-100 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 w-64 transition-all" 
-                />
-              </div>
-              <button className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-blue-600 shadow-sm relative transition-colors">
-                <Bell size={20} />
-                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
-              </button>
-           </div>
-        </header>
+            </div>
 
-        <div className="max-w-[1400px] mx-auto">
+            <div className="flex items-center gap-3">
+              <button className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors">
+                <Bell size={24} />
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-slate-50"></span>
+              </button>
+              <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+                <MoreVertical size={24} />
+              </button>
+            </div>
+          </div>
+
           {renderContent()}
         </div>
       </main>

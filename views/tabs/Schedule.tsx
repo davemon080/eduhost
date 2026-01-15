@@ -1,9 +1,13 @@
 
 import React from 'react';
 import { LIVE_CLASSES } from '../../mockData';
-import { Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, MapPin, Video, ArrowRight } from 'lucide-react';
 
-const Schedule: React.FC = () => {
+interface ScheduleProps {
+  onJoinLive?: () => void;
+}
+
+const Schedule: React.FC<ScheduleProps> = ({ onJoinLive }) => {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
@@ -27,15 +31,25 @@ const Schedule: React.FC = () => {
                       <h4 className="font-bold text-slate-800">CSC 201: Algorithms</h4>
                       <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">200L</span>
                     </div>
-                    <div className="flex flex-wrap gap-6 text-sm text-slate-500">
-                      <div className="flex items-center gap-2">
-                        <Clock size={16} />
-                        08:00 AM - 10:00 AM
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                      <div className="flex flex-wrap gap-6 text-sm text-slate-500">
+                        <div className="flex items-center gap-2">
+                          <Clock size={16} />
+                          08:00 AM - 10:00 AM
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-600 font-bold">
+                          <Video size={16} />
+                          Virtual (Live Class)
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin size={16} />
-                        Virtual (Live Class)
-                      </div>
+                      
+                      <button 
+                        onClick={onJoinLive}
+                        className="flex items-center justify-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 transition-all shadow-lg shadow-blue-200"
+                      >
+                        Join Now
+                        <ArrowRight size={14} />
+                      </button>
                     </div>
                   </div>
                 )}
