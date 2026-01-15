@@ -89,7 +89,15 @@ const Auth: React.FC<AuthProps> = ({ university, onLogin, onRegister, onBack }) 
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50">
+    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 relative">
+      {/* Absolute Top Left Back Button for Mobile */}
+      <button 
+        onClick={onBack}
+        className="md:hidden absolute top-6 left-6 z-[100] w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-900 shadow-lg border border-slate-100"
+      >
+        <ArrowLeft size={20} />
+      </button>
+
       {/* Brand Sidebar (Responsive) */}
       <div className="hidden md:flex md:w-[40%] bg-blue-600 relative overflow-hidden flex-col justify-between p-12 text-white shadow-2xl">
         <div className="absolute inset-0 bg-blue-700/30 backdrop-blur-3xl"></div>
@@ -124,7 +132,7 @@ const Auth: React.FC<AuthProps> = ({ university, onLogin, onRegister, onBack }) 
       </div>
 
       {/* Main Interface */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12">
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12 pt-24 md:pt-12">
         <div className="max-w-md w-full space-y-8 animate-in fade-in duration-700">
           <div className="text-center md:text-left">
             <h3 className="text-3xl font-black text-slate-900 mb-2">

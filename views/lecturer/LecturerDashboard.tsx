@@ -6,23 +6,20 @@ import {
   Home, 
   BookOpen, 
   Calendar, 
-  Video, 
-  FileText, 
-  MessageSquare, 
+  GraduationCap,
   Plus, 
   Search, 
-  Settings as SettingsIcon,
   LogOut,
-  Menu,
-  X,
   User,
-  ArrowRight,
   Monitor,
-  // Added missing Bell import
-  Bell
+  Bell,
+  ArrowLeft
 } from 'lucide-react';
 import ManageCourse from './ManageCourse';
 import ManageCommunity from './ManageCommunity';
+import ManageExams from './ManageExams';
+import ManageSchedule from './ManageSchedule';
+import You from '../tabs/You';
 
 interface LecturerDashboardProps {
   user: UserProfile;
@@ -32,92 +29,40 @@ interface LecturerDashboardProps {
 }
 
 const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ user, university, onLogout, onUpdateUser }) => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('community');
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const managedCourses = COURSES.filter(c => user.courses.includes(c.id));
   const activeCourse = COURSES.find(c => c.id === selectedCourseId);
 
-  const navItems = [
-    { id: 'overview', icon: Home, label: 'Control Center' },
-    { id: 'courses', icon: BookOpen, label: 'Curriculum' },
-    { id: 'community', icon: MessageSquare, label: 'Broadcasting' },
-    { id: 'exams', icon: FileText, label: 'Assessments' },
-    { id: 'schedule', icon: Calendar, label: 'Timetable' },
-  ];
+  const handleBackNavigation = () => {
+    if (selectedCourseId) {
+      setSelectedCourseId(null);
+      setActiveTab('courses');
+    }
+  };
 
   const renderContent = () => {
     if (selectedCourseId && activeCourse) {
       return (
         <ManageCourse 
           course={activeCourse} 
-          onBack={() => { setSelectedCourseId(null); setActiveTab('courses'); }} 
+          onBack={handleBackNavigation} 
         />
       );
     }
 
     switch (activeTab) {
-      case 'overview':
-        return (
-          <div className="space-y-8 animate-in fade-in duration-500">
-            <div className="bg-slate-900 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl">
-              <div className="relative z-10">
-                <h2 className="text-3xl font-black mb-2">Welcome, {user.name.split(',')[0]}</h2>
-                <p className="text-slate-400 font-medium">Faculty of {user.faculty} • Department of {user.department}</p>
-                <div className="mt-8 flex gap-4">
-                  <div className="bg-white/5 backdrop-blur-xl p-4 rounded-3xl border border-white/10">
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-500 mb-1">Students Reached</p>
-                    <p className="text-2xl font-bold">1,240+</p>
-                  </div>
-                  <div className="bg-white/5 backdrop-blur-xl p-4 rounded-3xl border border-white/10">
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-500 mb-1">Courses Active</p>
-                    <p className="text-2xl font-bold">{managedCourses.length}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/20 rounded-full blur-[120px]"></div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
-                <h3 className="text-xl font-black text-slate-900 mb-6">Active Curriculum</h3>
-                <div className="space-y-4">
-                  {managedCourses.map(c => (
-                    <button 
-                      key={c.id} 
-                      onClick={() => setSelectedCourseId(c.id)}
-                      className="w-full flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-100 hover:border-slate-300 transition-all group"
-                    >
-                      <div className="flex items-center gap-4 text-left">
-                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center font-black text-slate-400 border border-slate-100">
-                          {c.code.split(' ')[0]}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-800">{c.code}</p>
-                          <p className="text-xs text-slate-500">{c.title}</p>
-                        </div>
-                      </div>
-                      <ArrowRight size={18} className="text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="bg-slate-50 rounded-[2.5rem] border border-slate-200 border-dashed p-10 flex flex-col items-center justify-center text-center">
-                 <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-slate-400 mb-4 shadow-sm">
-                    <Plus size={24} />
-                 </div>
-                 <h3 className="font-bold text-slate-800">Add New Course</h3>
-                 <p className="text-xs text-slate-400 mt-1">Requires approval from the Faculty Head.</p>
-                 <button className="mt-6 px-8 py-3 bg-slate-900 text-white rounded-2xl text-sm font-bold shadow-xl shadow-slate-200 hover:bg-blue-600 transition-colors">Request Listing</button>
-              </div>
-            </div>
+      case 'community': return <ManageCommunity user={user} />;
+      case 'courses': return (
+        <div className="animate-in fade-in slide-in-from-bottom-4 space-y-8">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-xl font-black text-slate-900">Institutional Curriculum</h3>
+            <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/20">
+               <Plus size={16}/> New Course
+            </button>
           </div>
-        );
-      case 'courses':
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {managedCourses.map(course => (
               <div key={course.id} className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm hover:shadow-xl transition-all group">
                 <div className="flex items-center justify-between mb-6">
@@ -126,72 +71,38 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ user, university,
                 </div>
                 <h4 className="text-lg font-black text-slate-900 mb-2">{course.code}: {course.title}</h4>
                 <p className="text-xs text-slate-400 font-medium mb-8 leading-relaxed line-clamp-2">{course.description}</p>
-                <div className="flex flex-col gap-2">
-                  <button 
-                    onClick={() => setSelectedCourseId(course.id)}
-                    className="w-full py-4 bg-slate-50 text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-200"
-                  >
-                    Manage Content
-                  </button>
-                </div>
+                <button 
+                  onClick={() => setSelectedCourseId(course.id)}
+                  className="w-full py-4 bg-slate-50 text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all border border-slate-200"
+                >
+                  Manage Materials
+                </button>
               </div>
             ))}
           </div>
-        );
-      case 'community':
-        return <ManageCommunity user={user} />;
-      case 'exams':
-        return (
-          <div className="max-w-4xl mx-auto py-12 text-center bg-white rounded-[3rem] border border-slate-100 shadow-sm">
-            <div className="w-24 h-24 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-8">
-              <FileText size={48} />
-            </div>
-            <h2 className="text-3xl font-black text-slate-900 mb-4">Assessment Center</h2>
-            <p className="text-slate-500 max-w-sm mx-auto mb-10">Set questions, manage grading rubrics, and schedule examination periods for your students.</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-10 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-blue-600 transition-all shadow-xl shadow-slate-200">Create New Exam</button>
-              <button className="px-10 py-4 border-2 border-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-50 transition-all">Grade Submissions</button>
-            </div>
-          </div>
-        );
-      case 'schedule':
-        return (
-          <div className="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-sm max-w-5xl mx-auto">
-             <div className="flex items-center justify-between mb-10">
-                <h3 className="text-2xl font-black text-slate-900">Weekly Lecture Planner</h3>
-                <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl text-sm font-bold shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all">
-                  <Plus size={18} /> Add Slot
-                </button>
-             </div>
-             <div className="space-y-4">
-                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map(day => (
-                  <div key={day} className="flex items-center gap-8 p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:border-slate-300 transition-all">
-                    <div className="w-24 text-sm font-black text-slate-400 uppercase tracking-widest">{day}</div>
-                    <div className="flex-1 flex flex-wrap gap-4">
-                       <div className="px-5 py-3 bg-white rounded-2xl border border-slate-200 text-xs font-bold text-slate-600 flex items-center gap-3">
-                          <Calendar size={14} className="text-blue-500"/>
-                          08:00 - 10:00 (Virtual)
-                       </div>
-                       <div className="px-5 py-3 bg-white/50 border border-dashed border-slate-300 rounded-2xl text-[10px] font-black text-slate-300 uppercase flex items-center justify-center min-w-[120px]">
-                          Available
-                       </div>
-                    </div>
-                  </div>
-                ))}
-             </div>
-          </div>
-        );
-      default: return null;
+        </div>
+      );
+      case 'schedule': return <ManageSchedule />;
+      case 'exams': return <ManageExams />;
+      case 'you': return <You user={user} onUpdate={onUpdateUser} onLogout={onLogout} />;
+      default: return <ManageCommunity user={user} />;
     }
   };
 
+  const navItems = [
+    { id: 'community', icon: Home, label: 'Community', badge: true },
+    { id: 'courses', icon: BookOpen, label: 'Courses' },
+    { id: 'schedule', icon: Calendar, label: 'Schedule' },
+    { id: 'exams', icon: GraduationCap, label: 'Assessments', count: 12 },
+    { id: 'you', icon: User, label: 'You', isAvatar: true },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      {/* Sidebar - Admin Stylized */}
-      <aside className="fixed left-0 top-0 h-screen w-72 bg-slate-900 hidden md:flex flex-col z-50 text-white p-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row relative">
+      <aside className="fixed left-0 top-0 h-screen w-72 bg-slate-900 hidden md:flex flex-col z-50 text-white p-8 border-r border-white/5">
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
               <Monitor size={24}/>
             </div>
             <h1 className="text-lg font-black tracking-tighter">EduAdmin</h1>
@@ -213,15 +124,15 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ user, university,
         </nav>
 
         <div className="pt-8 border-t border-slate-800 space-y-4">
-           <button onClick={() => { setSelectedCourseId(null); setActiveTab('profile'); }} className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold text-slate-500 hover:text-white transition-all group">
-              <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center font-black group-hover:bg-blue-600 group-hover:text-white transition-all">
+           <div className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold text-slate-500">
+              <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center font-black">
                 {user.name.charAt(0)}
               </div>
               <div className="text-left">
-                <p className="text-xs font-bold leading-none">{user.name}</p>
-                <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-tighter">View Profile</p>
+                <p className="text-xs font-bold leading-none text-white">{user.name}</p>
+                <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-tighter">Administrator</p>
               </div>
-           </button>
+           </div>
            <button onClick={onLogout} className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-500/10 transition-all">
               <LogOut size={20} />
               Sign Out
@@ -229,26 +140,79 @@ const LecturerDashboard: React.FC<LecturerDashboardProps> = ({ user, university,
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 md:ml-72 min-w-0 p-6 md:p-12">
+      {/* MOBILE BOTTOM MENU - MATCHING IMAGE STYLE WITH UPDATED LABELS */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-[#1a1a1a]/95 backdrop-blur-xl border-t border-white/5 pt-3 pb-8 px-6">
+        <div className="flex items-center justify-between max-w-lg mx-auto">
+          {navItems.map(item => (
+            <button 
+              key={item.id}
+              onClick={() => { setSelectedCourseId(null); setActiveTab(item.id); }}
+              className={`flex flex-col items-center gap-1 group relative transition-colors duration-200 ${activeTab === item.id ? 'text-white' : 'text-zinc-500'}`}
+            >
+              <div className="relative">
+                {item.isAvatar ? (
+                  <div className={`w-7 h-7 rounded-full overflow-hidden border-2 transition-all ${activeTab === item.id ? 'border-white' : 'border-zinc-700'}`}>
+                    <img src={`https://ui-avatars.com/api/?name=${user.name}&background=random&color=fff`} className="w-full h-full object-cover" alt="Profile" />
+                  </div>
+                ) : (
+                  <item.icon size={26} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+                )}
+                
+                {item.count && (
+                  <span className="absolute -top-1.5 -right-3 px-1.5 py-0.5 bg-[#22c55e] text-black text-[10px] font-bold rounded-full min-w-[18px] text-center">
+                    {item.count}
+                  </span>
+                )}
+                
+                {item.badge && !item.count && (
+                  <span className="absolute top-0 -right-0.5 w-2 h-2 bg-[#22c55e] rounded-full border border-[#1a1a1a]"></span>
+                )}
+              </div>
+              <span className="text-[10px] font-medium tracking-tight">
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <main className="flex-1 md:ml-72 min-w-0 p-6 md:p-12 pb-32 md:pb-12">
         <header className="flex items-center justify-between mb-12">
            <div className="flex items-center gap-4">
-              <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-3 bg-white rounded-2xl border border-slate-100 text-slate-900 shadow-sm"><Menu size={20}/></button>
-              <h2 className="text-2xl font-black text-slate-900 capitalize tracking-tight">{selectedCourseId ? 'Manage Course' : activeTab}</h2>
+              {selectedCourseId && (
+                <button 
+                  onClick={handleBackNavigation}
+                  className="p-3 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all shadow-xl flex items-center justify-center animate-in slide-in-from-left-4"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+              )}
+              <div className="flex flex-col">
+                <h2 className="text-2xl font-black text-slate-900 capitalize tracking-tight leading-none">
+                  {activeTab === 'you' ? 'You' : activeTab.replace('-', ' ')}
+                </h2>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 hidden sm:block">
+                  {university.name} • Institutional Admin
+                </span>
+              </div>
            </div>
            <div className="flex items-center gap-4">
               <div className="hidden sm:flex relative items-center">
                  <Search size={18} className="absolute left-4 text-slate-400" />
-                 <input type="text" placeholder="Search student ID..." className="pl-12 pr-6 py-3 bg-white border border-slate-100 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 w-64 transition-all" />
+                 <input 
+                  type="text" 
+                  placeholder="Universal search..." 
+                  className="pl-12 pr-6 py-3 bg-white border border-slate-100 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 w-64 transition-all" 
+                />
               </div>
-              <button className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-blue-600 shadow-sm relative">
+              <button className="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-blue-600 shadow-sm relative transition-colors">
                 <Bell size={20} />
                 <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-blue-600 rounded-full border-2 border-white"></span>
               </button>
            </div>
         </header>
 
-        <div className="max-w-[1400px]">
+        <div className="max-w-[1400px] mx-auto">
           {renderContent()}
         </div>
       </main>

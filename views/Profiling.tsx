@@ -71,7 +71,15 @@ const Profiling: React.FC<ProfilingProps> = ({ university, onComplete, onBack, r
   const progressPercentage = (step / totalSteps) * 100;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 md:p-8 relative">
+      {/* Universal Top Left Back Button */}
+      <button 
+        onClick={onBack}
+        className="absolute top-8 left-8 p-3 bg-white rounded-2xl text-slate-900 shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors hidden md:flex items-center justify-center"
+      >
+        <ArrowLeft size={20} />
+      </button>
+
       <div className="max-w-2xl w-full bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100">
         <div className="h-2 bg-slate-100">
           <div 
@@ -81,6 +89,14 @@ const Profiling: React.FC<ProfilingProps> = ({ university, onComplete, onBack, r
         </div>
 
         <div className="p-8 md:p-12">
+          {/* Mobile Back Header */}
+          <div className="md:hidden flex items-center mb-8">
+            <button onClick={onBack} className="p-2 -ml-2 text-slate-500 hover:text-slate-900">
+              <ArrowLeft size={20} />
+            </button>
+            <span className="ml-2 text-xs font-bold text-slate-400 uppercase tracking-widest">Back to Auth</span>
+          </div>
+
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
             <div>
               <h2 className="text-2xl font-black text-slate-900 leading-tight">
@@ -227,7 +243,7 @@ const Profiling: React.FC<ProfilingProps> = ({ university, onComplete, onBack, r
                       </button>
                     )) : (
                       <div className="py-12 text-center bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-                        <p className="text-slate-400 font-medium">No courses available for this selection.</p>
+                        <p className="text-slate-400 font-medium">No courses found for this level/department combination.</p>
                       </div>
                     )}
                   </div>
