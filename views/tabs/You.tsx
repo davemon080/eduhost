@@ -17,9 +17,11 @@ import {
   Play,
   Trash2,
   Library,
-  ArrowLeft
+  ArrowLeft,
+  UserCircle
 } from 'lucide-react';
 import Profile from './Profile';
+import BioData from './BioData';
 import SettingsView from './Settings';
 import Badges from './Badges';
 import Fees from './Fees';
@@ -32,12 +34,14 @@ interface YouProps {
 }
 
 const You: React.FC<YouProps> = ({ user, onUpdate, onLogout }) => {
-  const [subView, setSubView] = useState<'hub' | 'profile' | 'settings' | 'library' | 'badges' | 'fees' | 'help'>('hub');
+  const [subView, setSubView] = useState<'hub' | 'profile' | 'biodata' | 'settings' | 'library' | 'badges' | 'fees' | 'help'>('hub');
 
   const renderSubView = () => {
     switch (subView) {
       case 'profile':
         return <Profile user={user} onUpdate={onUpdate} onLogout={onLogout} />;
+      case 'biodata':
+        return <BioData user={user} onUpdate={onUpdate} />;
       case 'settings':
         return <SettingsView user={user} onUpdate={onUpdate} />;
       case 'badges':
@@ -127,22 +131,23 @@ const You: React.FC<YouProps> = ({ user, onUpdate, onLogout }) => {
     { 
       label: 'Account & Identity', 
       items: [
-        { id: 'profile', label: 'Detailed Profile', icon: User, color: 'text-blue-600 bg-blue-50', onClick: () => setSubView('profile') },
-        { id: 'badges', label: 'Academic Badges', icon: Award, color: 'text-amber-600 bg-amber-50', onClick: () => setSubView('badges') },
+        { id: 'profile', label: 'Detailed Profile', desc: 'Academic path and institutional records.', icon: User, color: 'text-blue-600 bg-blue-50', onClick: () => setSubView('profile') },
+        { id: 'biodata', label: 'Bio Data', desc: 'Manage personal details and emergency contacts.', icon: UserCircle, color: 'text-indigo-600 bg-indigo-50', onClick: () => setSubView('biodata') },
+        { id: 'badges', label: 'Academic Badges', desc: 'Achievements and learned milestones.', icon: Award, color: 'text-amber-600 bg-amber-50', onClick: () => setSubView('badges') },
       ]
     },
     { 
       label: 'Content Hub', 
       items: [
-        { id: 'library', label: 'Learning Library', icon: Library, color: 'text-indigo-600 bg-indigo-50', onClick: () => setSubView('library') },
-        { id: 'fees', label: 'Fees & Payments', icon: CreditCard, color: 'text-emerald-600 bg-emerald-50', onClick: () => setSubView('fees') },
+        { id: 'library', label: 'Learning Library', desc: 'Access your saved lecture recordings.', icon: Library, color: 'text-purple-600 bg-purple-50', onClick: () => setSubView('library') },
+        { id: 'fees', label: 'Fees & Payments', desc: 'Institutional payments and invoices.', icon: CreditCard, color: 'text-emerald-600 bg-emerald-50', onClick: () => setSubView('fees') },
       ]
     },
     { 
       label: 'Portal Controls', 
       items: [
-        { id: 'settings', label: 'App Settings', icon: Settings, color: 'text-slate-600 bg-slate-100', onClick: () => setSubView('settings') },
-        { id: 'help', label: 'Help Center', icon: HelpCircle, color: 'text-green-600 bg-green-50', onClick: () => setSubView('help') },
+        { id: 'settings', label: 'App Settings', desc: 'Tailor the portal interface preferences.', icon: Settings, color: 'text-slate-600 bg-slate-100', onClick: () => setSubView('settings') },
+        { id: 'help', label: 'Help Center', desc: 'Find answers and contact institutional support.', icon: HelpCircle, color: 'text-green-600 bg-green-50', onClick: () => setSubView('help') },
       ]
     }
   ];
@@ -163,6 +168,7 @@ const You: React.FC<YouProps> = ({ user, onUpdate, onLogout }) => {
         <button 
           onClick={onLogout}
           className="p-4 bg-red-50 text-red-600 rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-sm"
+          title="Securely sign out"
         >
           <LogOut size={20} />
         </button>
@@ -177,15 +183,18 @@ const You: React.FC<YouProps> = ({ user, onUpdate, onLogout }) => {
                 <button 
                   key={item.id} 
                   onClick={item.onClick}
-                  className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors group"
+                  className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors group text-left"
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-xl ${item.color}`}>
+                    <div className={`p-3 rounded-xl ${item.color} shrink-0`}>
                       <item.icon size={20} />
                     </div>
-                    <span className="font-bold text-slate-800">{item.label}</span>
+                    <div>
+                      <span className="font-bold text-slate-800 block text-sm">{item.label}</span>
+                      <span className="text-[10px] text-slate-400 font-medium block mt-0.5">{item.desc}</span>
+                    </div>
                   </div>
-                  <ChevronRight size={18} className="text-slate-300 group-hover:text-slate-900 transition-colors" />
+                  <ChevronRight size={18} className="text-slate-300 group-hover:text-slate-900 transition-colors shrink-0" />
                 </button>
               ))}
             </div>
@@ -193,8 +202,26 @@ const You: React.FC<YouProps> = ({ user, onUpdate, onLogout }) => {
         ))}
       </div>
 
+      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden p-2">
+         <button
+          onClick={onLogout}
+          className="w-full flex items-center justify-between p-5 bg-red-50/50 hover:bg-red-50 rounded-2xl transition-all group text-left"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-red-100 text-red-600 rounded-xl shrink-0">
+              <LogOut size={20} />
+            </div>
+            <div>
+              <span className="font-bold text-red-600 block text-sm">Secure Sign Out</span>
+              <span className="text-[10px] text-red-400 font-medium block mt-0.5">Securely sign out of your portal.</span>
+            </div>
+          </div>
+          <ChevronRight size={18} className="text-red-200 group-hover:text-red-600 transition-colors shrink-0" />
+        </button>
+      </div>
+
       <div className="pt-8 text-center">
-        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">EduStream Pro v4.2.0 • Institutional Build</p>
+        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Paragon v4.2.0 • Institutional Build</p>
       </div>
     </div>
   );

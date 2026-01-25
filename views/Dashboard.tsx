@@ -9,28 +9,27 @@ import LiveClassView from './tabs/LiveClassView';
 import Schedule from './tabs/Schedule';
 import You from './tabs/You';
 import Assessments from './tabs/Assessments';
-import LecturerDashboard from './lecturer/LecturerDashboard';
+import ManageAdvising from './lecturer/ManageAdvising';
 import { COURSES } from '../mockData';
 import { 
   User, 
   Bell, 
-  Home, 
-  BookOpen, 
-  Calendar, 
-  GraduationCap, 
+  Compass, 
+  Library, 
+  CalendarDays, 
+  Trophy, 
   ArrowLeft, 
-  Search, 
-  MessageSquare, 
   MoreVertical, 
-  Phone, 
-  Users, 
-  Video,
-  X,
+  Info,
   LifeBuoy,
   MessageCircle,
-  Settings as SettingsIcon,
   LogOut,
-  Info
+  Sparkles,
+  ArrowRight,
+  Clock,
+  ClipboardCheck,
+  UserCheck,
+  FileText
 } from 'lucide-react';
 
 interface DashboardProps {
@@ -49,21 +48,15 @@ const Dashboard: React.FC<DashboardProps> = ({ university, user, onLogout, onUpd
   const notificationRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdowns on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
-        setShowNotifications(false);
-      }
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowMiniMenu(false);
-      }
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) setShowNotifications(false);
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) setShowMiniMenu(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // For Student view
   const myCourses = COURSES.filter(c => user.courses.includes(c.id));
   const activeCourse = COURSES.find(c => c.id === selectedCourseId);
 
@@ -75,61 +68,45 @@ const Dashboard: React.FC<DashboardProps> = ({ university, user, onLogout, onUpd
   };
 
   const handleSaveRecording = (recording: SavedRecording) => {
-    const updatedUser = {
-      ...user,
-      recordings: [...(user.recordings || []), recording]
-    };
-    onUpdateUser(updatedUser);
+    onUpdateUser({ ...user, recordings: [...(user.recordings || []), recording] });
   };
 
-  if (user.role === UserRole.LECTURER) {
-    return (
-      <LecturerDashboard 
-        user={user} 
-        university={university} 
-        onLogout={onLogout} 
-        onUpdateUser={onUpdateUser}
-      />
-    );
-  }
-
   const renderContent = () => {
-    if (selectedCourseId && activeCourse) {
-      return (
-        <Classroom 
-          course={activeCourse} 
-          onBack={() => {
-            setSelectedCourseId(null);
-            setActiveTab('courses');
-          }} 
-        />
-      );
-    }
-
+    if (selectedCourseId && activeCourse) return <Classroom course={activeCourse} onBack={() => { setSelectedCourseId(null); setActiveTab('courses'); }} />;
     switch (activeTab) {
-      case 'community': return <Community user={user} />;
-      case 'courses': return <Courses courses={myCourses} onSelectCourse={(id) => setSelectedCourseId(id)} />;
+      case 'community': return <Community user={user} university={university} />;
+      case 'courses': return <Courses courses={myCourses} onSelectCourse={setSelectedCourseId} />;
       case 'schedule': return <Schedule onJoinLive={() => setActiveTab('live')} />;
       case 'live': return <LiveClassView user={user} onBack={() => setActiveTab('schedule')} onSaveRecording={handleSaveRecording} />;
       case 'exams': return <Assessments />;
+      case 'advising': return <ManageAdvising university={university} />;
       case 'you': return <You user={user} onUpdate={onUpdateUser} onLogout={onLogout} />;
-      default: return <Community user={user} />;
+      default: return <Community user={user} university={university} />;
     }
   };
 
+  const isStudent = user.role === UserRole.STUDENT;
+
   const navItems = [
-    { id: 'community', icon: Home, label: 'Community', badge: true },
-    { id: 'courses', icon: BookOpen, label: 'Courses' },
-    { id: 'schedule', icon: Calendar, label: 'Schedule' },
-    { id: 'exams', icon: GraduationCap, label: 'Assessments', count: 61 },
-    { id: 'you', icon: User, label: 'You', isAvatar: true },
+    { id: 'community', icon: Compass, label: 'Feed' },
+    { id: 'courses', icon: Library, label: 'Classroom' },
+    { id: 'exams', icon: FileText, label: 'Results' },
+    { id: 'schedule', icon: CalendarDays, label: 'Timeline' },
+    { id: 'you', icon: User, label: 'Account', isAvatar: true },
   ];
 
-  const notifications = [
-    { id: 1, title: 'New Study Material', desc: 'Prof. Mark uploaded a new PDF for CSC 101.', time: '10m ago', unread: true },
-    { id: 2, title: 'Live Class Starting', desc: 'CSC 201 Seminar starts in 15 minutes.', time: '45m ago', unread: true },
-    { id: 3, title: 'Assignment Graded', desc: 'Your Logic & Philosophy essay has been reviewed.', time: '2h ago', unread: false },
-  ];
+  const getPageTitle = () => {
+    switch (activeTab) {
+      case 'community': return 'Institutional Feed';
+      case 'courses': return isStudent ? 'Active Classroom' : 'Assigned Modules';
+      case 'schedule': return 'Timeline & Schedule';
+      case 'live': return 'Live Halls';
+      case 'exams': return 'Assessments & Results';
+      case 'advising': return 'Student Advising Queue';
+      case 'you': return 'Account Hub';
+      default: return activeTab;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row relative">
@@ -138,135 +115,93 @@ const Dashboard: React.FC<DashboardProps> = ({ university, user, onLogout, onUpd
         setActiveTab={(tab) => { setSelectedCourseId(null); setActiveTab(tab); }} 
         onLogout={onLogout} 
         universityName={university.name}
+        userRole={user.role}
       />
 
-      {/* MOBILE BOTTOM MENU - DARK STYLE */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-[#1a1a1a]/95 backdrop-blur-xl border-t border-white/5 pt-3 pb-8 px-6">
-        <div className="flex items-center justify-between max-w-lg mx-auto">
+      {/* MOBILE BOTTOM MENU */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-white/90 backdrop-blur-3xl border-t border-slate-200/50 px-4 pt-2 pb-5">
+        <div className="flex items-center justify-between max-w-md mx-auto">
           {navItems.map(item => (
             <button 
               key={item.id}
               onClick={() => { setSelectedCourseId(null); setActiveTab(item.id); }}
-              className={`flex flex-col items-center gap-1 group relative transition-colors duration-200 ${activeTab === item.id ? 'text-white' : 'text-zinc-500'}`}
+              className={`relative flex flex-col items-center gap-0.5 px-2 py-1 transition-all duration-300 group min-w-[64px]`}
             >
-              <div className="relative">
+              <div 
+                className={`absolute inset-0 blur-xl rounded-full transition-opacity duration-500 ${activeTab === item.id ? 'opacity-100' : 'opacity-0'}`}
+                style={{ backgroundColor: `${university.primaryColor}1A` }}
+              ></div>
+              <div className={`relative transition-transform duration-300 ${activeTab === item.id ? 'scale-110 -translate-y-0.5' : 'text-slate-400'}`}>
                 {item.isAvatar ? (
-                  <div className={`w-7 h-7 rounded-full overflow-hidden border-2 transition-all ${activeTab === item.id ? 'border-white' : 'border-zinc-700'}`}>
-                    <img src={`https://ui-avatars.com/api/?name=${user.name}&background=random&color=fff`} className="w-full h-full object-cover" alt="Profile" />
+                  <div className={`w-6 h-6 rounded-full border-2 transition-all ${activeTab === item.id ? 'shadow-md' : 'border-slate-200 grayscale'}`} style={activeTab === item.id ? { borderColor: university.primaryColor } : {}}>
+                    <img src={`https://ui-avatars.com/api/?name=${user.name}&background=random`} className="w-full h-full rounded-full" />
                   </div>
                 ) : (
-                  <item.icon size={26} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-                )}
-                {item.count && (
-                  <span className="absolute -top-1.5 -right-3 px-1.5 py-0.5 bg-[#22c55e] text-black text-[10px] font-bold rounded-full min-w-[18px] text-center">
-                    {item.count}
-                  </span>
-                )}
-                {item.badge && !item.count && (
-                  <span className="absolute top-0 -right-0.5 w-2 h-2 bg-[#22c55e] rounded-full border border-[#1a1a1a]"></span>
+                  <item.icon 
+                    size={20} 
+                    strokeWidth={activeTab === item.id ? 2.5 : 2} 
+                    className={`${activeTab === item.id ? '' : 'text-slate-400'}`}
+                    style={activeTab === item.id ? { color: university.primaryColor } : {}}
+                  />
                 )}
               </div>
-              <span className="text-[10px] font-medium tracking-tight">{item.label}</span>
+              <span className={`text-[8px] font-black uppercase tracking-widest transition-colors duration-300 ${activeTab === item.id ? '' : 'text-slate-400'}`} style={activeTab === item.id ? { color: university.primaryColor } : {}}>
+                {item.label}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      <main className="flex-1 md:ml-64 flex flex-col min-w-0 pb-32 md:pb-0">
-        <div className="p-6 md:p-12 overflow-y-auto max-w-[1600px] mx-auto w-full">
-          {/* BODY CONTENT HEADER */}
-          <div className="flex items-center justify-between mb-10 animate-in fade-in slide-in-from-top-4 duration-500 relative">
-            <div className="flex items-center gap-4">
+      <main className="flex-1 md:ml-80 flex flex-col min-w-0 pb-24 md:pb-0">
+        <header className="sticky top-0 z-40 bg-slate-50/80 backdrop-blur-md border-b border-slate-200/40 px-6 md:px-12 py-6">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-5">
               {(selectedCourseId || activeTab === 'live') && (
-                <button 
-                  onClick={() => {
-                    if (activeTab === 'live') {
-                      setActiveTab('schedule');
-                    } else {
-                      handleBackNavigation();
-                    }
-                  }}
-                  className="p-3 bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all shadow-xl flex items-center justify-center"
-                >
+                <button onClick={() => activeTab === 'live' ? setActiveTab('schedule') : handleBackNavigation()} className="w-10 h-10 bg-white border border-slate-200 text-slate-900 rounded-xl hover:bg-slate-50 transition-all flex items-center justify-center shadow-sm">
                   <ArrowLeft size={20} />
                 </button>
               )}
-              <div className="flex flex-col">
-                <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-none capitalize">
-                  {activeTab === 'you' ? 'Account Hub' : activeTab.replace('-', ' ')}
+              <div>
+                <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-none">
+                  {getPageTitle()}
                 </h1>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">
-                  {university.name}
-                </p>
+                <p className="text-[10px] font-black uppercase tracking-widest mt-2" style={{ color: university.primaryColor }}>{university.name}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {/* Notification Button & Dropdown */}
-              <div className="relative" ref={notificationRef}>
+            <div className="flex items-center gap-3">
+              <div className="hidden lg:flex items-center gap-2 mr-4">
                 <button 
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className={`relative p-2 transition-all rounded-xl ${showNotifications ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-blue-600 hover:bg-slate-100'}`}
+                  onClick={() => setActiveTab('courses')}
+                  className="px-4 py-2 bg-white border border-slate-200 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center gap-2"
                 >
-                  <Bell size={24} />
-                  <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-50"></span>
+                  <Library size={14} /> Classroom
                 </button>
-
-                {showNotifications && (
-                  <div className="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-xl border border-slate-100 rounded-[2rem] shadow-2xl z-[120] animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
-                    <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                       <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Notifications</h3>
-                       <button className="text-[10px] font-black text-blue-600 uppercase hover:underline">Clear All</button>
-                    </div>
-                    <div className="max-h-96 overflow-y-auto divide-y divide-slate-50">
-                      {notifications.map(n => (
-                        <div key={n.id} className={`p-5 flex gap-4 hover:bg-slate-50 transition-colors cursor-pointer group ${n.unread ? 'bg-blue-50/20' : ''}`}>
-                          <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${n.unread ? 'bg-blue-500' : 'bg-transparent'}`}></div>
-                          <div className="flex-1">
-                            <p className="text-sm font-bold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">{n.title}</p>
-                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">{n.desc}</p>
-                            <p className="text-[10px] font-black text-slate-300 uppercase mt-2">{n.time}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <button className="w-full py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 transition-colors">
-                      View all alerts
-                    </button>
-                  </div>
-                )}
               </div>
 
-              {/* More Actions Button & Dropdown */}
-              <div className="relative" ref={menuRef}>
-                <button 
-                  onClick={() => setShowMiniMenu(!showMiniMenu)}
-                  className={`p-2 transition-all rounded-xl ${showMiniMenu ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'}`}
-                >
-                  <MoreVertical size={24} />
+              <div className="relative" ref={notificationRef}>
+                <button onClick={() => setShowNotifications(!showNotifications)} className={`p-2.5 rounded-xl transition-all ${showNotifications ? 'bg-white shadow-sm ring-1 ring-slate-100' : 'text-slate-400 hover:bg-white border border-transparent hover:border-slate-200'}`} style={showNotifications ? { color: university.primaryColor } : {}}>
+                  <Bell size={22} />
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-50"></span>
                 </button>
+              </div>
 
+              <div className="relative" ref={menuRef}>
+                <button onClick={() => setShowMiniMenu(!showMiniMenu)} className={`p-2.5 rounded-xl transition-all ${showMiniMenu ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400 hover:text-slate-900 hover:bg-white border border-transparent hover:border-slate-200'}`}>
+                  <MoreVertical size={22} />
+                </button>
                 {showMiniMenu && (
-                  <div className="absolute right-0 mt-3 w-56 bg-slate-900 rounded-3xl shadow-2xl z-[120] animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden py-2 border border-white/5">
+                  <div className="absolute right-0 mt-3 w-56 bg-white rounded-3xl shadow-2xl z-[120] border border-slate-200 overflow-hidden py-2 animate-in slide-in-from-top-2">
                     {[
-                      { icon: Info, label: 'Platform Info', onClick: () => {} },
-                      { icon: LifeBuoy, label: 'Help Center', onClick: () => { setActiveTab('you'); setShowMiniMenu(false); } },
-                      { icon: MessageCircle, label: 'Send Feedback', onClick: () => {} },
+                      { icon: Info, label: 'Help Desk', onClick: () => { setActiveTab('you'); setShowMiniMenu(false); } },
                       { divider: true },
-                      { icon: LogOut, label: 'Institutional Logout', onClick: onLogout, danger: true },
+                      { icon: LogOut, label: 'Sign Out', onClick: onLogout, danger: true },
                     ].map((item, i) => (
-                      item.divider ? (
-                        <div key={i} className="h-px bg-white/10 my-2 mx-4" />
-                      ) : (
-                        <button
-                          key={i}
-                          onClick={item.onClick}
-                          className={`w-full flex items-center gap-3 px-6 py-3.5 text-xs font-black uppercase tracking-widest transition-all ${
-                            item.danger ? 'text-red-400 hover:bg-red-500/10' : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                          }`}
-                        >
-                          <item.icon size={16} />
-                          {item.label}
+                      item.divider ? <div key={i} className="h-px bg-slate-100 my-2 mx-4" /> : (
+                        <button key={i} onClick={item.onClick} className={`w-full flex items-center gap-3 px-6 py-3.5 text-xs font-black uppercase tracking-widest transition-all ${item.danger ? 'text-red-500 hover:bg-red-50' : 'text-slate-600 hover:bg-slate-50'}`}>
+                           <item.icon size={16} />
+                           {item.label}
                         </button>
                       )
                     ))}
@@ -275,9 +210,11 @@ const Dashboard: React.FC<DashboardProps> = ({ university, user, onLogout, onUpd
               </div>
             </div>
           </div>
+        </header>
 
+        <section className="p-6 md:p-12 overflow-y-auto max-w-7xl mx-auto w-full page-transition">
           {renderContent()}
-        </div>
+        </section>
       </main>
     </div>
   );

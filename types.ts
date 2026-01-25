@@ -10,6 +10,7 @@ export interface University {
   name: string;
   logo: string;
   primaryColor: string;
+  accentColor?: string;
 }
 
 export interface Module {
@@ -69,9 +70,35 @@ export interface UserProfile {
   faculty: string;
   department: string;
   courses: string[]; 
+  pendingCourses?: string[];
   progress?: AcademicRecord[];
   recordings?: SavedRecording[];
   avatar?: string;
+  // Academic info fields
+  state?: string;
+  lga?: string;
+  yearOfAdmission?: string;
+  programmeType?: string;
+  programme?: string;
+  currentStatus?: 'Active' | 'Inactive' | 'Suspended';
+  currentSession?: string;
+  currentSemester?: 'First' | 'Second';
+  registrationStatus?: 'Registered' | 'Pending' | 'Not Started';
+  // Bio-data fields
+  gender?: string;
+  dob?: string;
+  nationality?: string;
+  maritalStatus?: string;
+  religion?: string;
+  phone?: string;
+  contactAddress?: string;
+  bloodGroup?: string;
+  genotype?: string;
+  nextOfKin?: {
+    name: string;
+    relationship: string;
+    phone: string;
+  };
   settings?: {
     notifications: boolean;
     darkMode: boolean;

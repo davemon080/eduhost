@@ -2,6 +2,13 @@
 import { University, Course, FeedPost, LiveClass } from './types';
 
 export const UNIVERSITIES: University[] = [
+  { 
+    id: '4', 
+    name: 'Federal University of Lafia', 
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Federal_University_Lafia_logo.png/220px-Federal_University_Lafia_logo.png', 
+    primaryColor: '#004d40', 
+    accentColor: '#d4af37' 
+  },
   { id: '1', name: 'University of Technology', logo: 'https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=100&h=100&fit=crop', primaryColor: '#2563eb' },
   { id: '2', name: 'State Academic Institute', logo: 'https://images.unsplash.com/photo-1562774053-701939374585?w=100&h=100&fit=crop', primaryColor: '#dc2626' },
   { id: '3', name: 'Global Science University', logo: 'https://images.unsplash.com/photo-1541339907198-e08756ebafe3?w=100&h=100&fit=crop', primaryColor: '#059669' },

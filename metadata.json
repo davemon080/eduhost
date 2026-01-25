@@ -1,6 +1,6 @@
 {
-  "name": "EduStream Pro",
-  "description": "A high-end multi-tenant university online learning platform with progressive profiling, community feeds, and live virtual classrooms.",
+  "name": "Paragon",
+  "description": "A model of excellence in university online learning. Your central hub for courses, schedules, assessments, and campus updates.",
   "requestFramePermissions": [
     "camera",
     "microphone"

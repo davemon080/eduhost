@@ -99,12 +99,15 @@ const Auth: React.FC<AuthProps> = ({ university, onLogin, onRegister, onBack }) 
       </button>
 
       {/* Brand Sidebar (Responsive) */}
-      <div className="hidden md:flex md:w-[40%] bg-blue-600 relative overflow-hidden flex-col justify-between p-12 text-white shadow-2xl">
-        <div className="absolute inset-0 bg-blue-700/30 backdrop-blur-3xl"></div>
+      <div 
+        className="hidden md:flex md:w-[40%] bg-blue-600 relative overflow-hidden flex-col justify-between p-12 text-white shadow-2xl"
+        style={{ backgroundColor: university.primaryColor }}
+      >
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-3xl"></div>
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-[100px]"></div>
         
         <div className="relative z-10">
-          <button onClick={onBack} className="flex items-center gap-2 text-blue-100 hover:text-white mb-16 transition-colors group">
+          <button onClick={onBack} className="flex items-center gap-2 text-white/80 hover:text-white mb-16 transition-colors group">
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             <span className="font-semibold">Switch University</span>
           </button>
@@ -115,19 +118,19 @@ const Auth: React.FC<AuthProps> = ({ university, onLogin, onRegister, onBack }) 
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight">{university.name}</h1>
-              <p className="text-blue-100/60 text-sm font-medium">Official Portal</p>
+              <p className="text-white/60 text-sm font-medium uppercase tracking-widest">Portal</p>
             </div>
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-4xl font-extrabold leading-tight">Your Journey to <span className="text-blue-300 underline decoration-blue-400/30">Knowledge</span> starts here.</h2>
-            <p className="text-blue-100 text-lg leading-relaxed max-w-sm">Secure, integrated, and professional virtual learning environment for {university.name}.</p>
+            <h2 className="text-4xl font-extrabold leading-tight">Your Journey to <span className="underline decoration-white/30">Knowledge</span> starts here.</h2>
+            <p className="text-white/80 text-lg leading-relaxed max-w-sm">Secure, integrated, and professional virtual learning environment for {university.name}.</p>
           </div>
         </div>
 
-        <div className="relative z-10 flex items-center gap-4 text-sm text-blue-200 font-medium">
+        <div className="relative z-10 flex items-center gap-4 text-sm text-white/60 font-medium">
           <ShieldCheck size={18} />
-          <span>Secured by EduStream Pro Platform</span>
+          <span>Secured by Paragon Pro Platform</span>
         </div>
       </div>
 
@@ -138,21 +141,23 @@ const Auth: React.FC<AuthProps> = ({ university, onLogin, onRegister, onBack }) 
             <h3 className="text-3xl font-black text-slate-900 mb-2">
               {mode === 'LOGIN' ? 'Welcome Back' : 'Get Started'}
             </h3>
-            <p className="text-slate-500 font-medium">Enter your credentials to access your dashboard.</p>
+            <p className="text-slate-500 font-medium">Login to your account below</p>
           </div>
 
           {/* Role Toggle */}
           <div className="flex bg-slate-200/50 p-1.5 rounded-2xl">
             <button 
               onClick={() => { setRole(UserRole.STUDENT); setError(''); setIsSecretVerified(false); setMode('LOGIN'); setSuccessMsg(''); }}
-              className={`flex-1 flex items-center justify-center gap-3 py-3 rounded-xl text-sm font-bold transition-all ${role === UserRole.STUDENT ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500 hover:bg-slate-200'}`}
+              className={`flex-1 flex items-center justify-center gap-3 py-3 rounded-xl text-sm font-bold transition-all ${role === UserRole.STUDENT ? 'bg-white shadow-md' : 'text-slate-500 hover:bg-slate-200'}`}
+              style={role === UserRole.STUDENT ? { color: university.primaryColor } : {}}
             >
               <GraduationCap size={18} />
               Student
             </button>
             <button 
               onClick={() => { setRole(UserRole.LECTURER); setError(''); setSuccessMsg(''); }}
-              className={`flex-1 flex items-center justify-center gap-3 py-3 rounded-xl text-sm font-bold transition-all ${role === UserRole.LECTURER ? 'bg-white text-blue-600 shadow-md' : 'text-slate-500 hover:bg-slate-200'}`}
+              className={`flex-1 flex items-center justify-center gap-3 py-3 rounded-xl text-sm font-bold transition-all ${role === UserRole.LECTURER ? 'bg-white shadow-md' : 'text-slate-500 hover:bg-slate-200'}`}
+              style={role === UserRole.LECTURER ? { color: university.primaryColor } : {}}
             >
               <ShieldCheck size={18} />
               Lecturer
@@ -177,7 +182,7 @@ const Auth: React.FC<AuthProps> = ({ university, onLogin, onRegister, onBack }) 
           {mode === 'REGISTER' && role === UserRole.LECTURER && !isSecretVerified ? (
             <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-6">
               <div className="text-center">
-                <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4" style={{ color: university.primaryColor }}>
                   <Lock size={28} />
                 </div>
                 <h4 className="text-xl font-bold text-slate-900">Verification Required</h4>
@@ -189,11 +194,13 @@ const Auth: React.FC<AuthProps> = ({ university, onLogin, onRegister, onBack }) 
                   value={secretPass}
                   onChange={e => setSecretPass(e.target.value)}
                   placeholder="Institutional Secret Key"
-                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-mono transition-all text-center placeholder:font-sans"
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-opacity-10 focus:border-opacity-100 transition-all text-center placeholder:font-sans font-mono"
+                  style={{ '--tw-ring-color': university.primaryColor, borderColor: 'transparent' }}
                 />
                 <button 
                   onClick={handleLecturerGate}
-                  className="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-blue-600 transition-all shadow-xl shadow-slate-200"
+                  className="w-full py-4 text-white font-bold rounded-2xl transition-all shadow-xl shadow-slate-200"
+                  style={{ backgroundColor: university.primaryColor }}
                 >
                   Verify Access
                 </button>
@@ -210,23 +217,25 @@ const Auth: React.FC<AuthProps> = ({ university, onLogin, onRegister, onBack }) 
                     required
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
+                    className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 transition-all shadow-sm"
                     placeholder="e.g. Dr. Jane Smith"
+                    style={{ '--tw-ring-color': university.primaryColor }}
                   />
                 </div>
               )}
 
               <div className="space-y-1.5">
                 <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">
-                  {role === UserRole.STUDENT ? 'Matriculation Number' : 'Staff Identification ID'}
+                  {role === UserRole.STUDENT ? 'Username or Email' : 'Staff Identification ID'}
                 </label>
                 <input 
                   type="text" 
                   required
                   value={id}
                   onChange={e => setId(e.target.value)}
-                  className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
-                  placeholder={role === UserRole.STUDENT ? "e.g. U2018/30402" : "STF-9902"}
+                  className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 transition-all shadow-sm"
+                  placeholder={role === UserRole.STUDENT ? "Username or Email" : "STF-9902"}
+                  style={{ '--tw-ring-color': university.primaryColor }}
                 />
               </div>
 
@@ -238,13 +247,14 @@ const Auth: React.FC<AuthProps> = ({ university, onLogin, onRegister, onBack }) 
                     required
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
-                    placeholder="••••••••"
+                    className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 transition-all shadow-sm"
+                    placeholder="Password"
+                    style={{ '--tw-ring-color': university.primaryColor }}
                   />
                   <button 
                     type="button" 
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -252,36 +262,44 @@ const Auth: React.FC<AuthProps> = ({ university, onLogin, onRegister, onBack }) 
               </div>
 
               {mode === 'LOGIN' && (
-                <div className="flex justify-end">
-                  <button type="button" className="text-xs font-bold text-blue-600 hover:underline">Trouble Logging In?</button>
+                <div className="flex justify-center">
+                  <button type="button" className="text-xs font-bold text-blue-600 hover:underline" style={{ color: university.primaryColor }}>Forget password?</button>
                 </div>
               )}
 
               <button 
                 type="submit" 
                 disabled={isLoading}
-                className={`w-full py-5 text-white font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 ${mode === 'REGISTER' ? 'bg-slate-900 hover:bg-blue-600 shadow-slate-100' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-100'}`}
+                className={`w-full py-5 text-white font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 disabled:opacity-50`}
+                style={{ backgroundColor: university.accentColor || university.primaryColor }}
               >
                 {isLoading ? (
                   <Loader2 className="animate-spin" size={20} />
                 ) : (
                   <>
-                    {mode === 'LOGIN' ? 'Secure Login' : (role === UserRole.STUDENT ? 'Start Profiling' : 'Register Account')}
+                    {mode === 'LOGIN' ? 'Login' : (role === UserRole.STUDENT ? 'Start Profiling' : 'Register Account')}
                     {mode === 'REGISTER' && role === UserRole.LECTURER ? <UserPlus size={18} /> : <ChevronRight size={18} />}
                   </>
                 )}
               </button>
+
+              <div className="text-center space-y-2 mt-4">
+                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Start your application</p>
+                 <button type="button" className="text-sm font-bold text-blue-600 flex items-center justify-center gap-1 mx-auto" style={{ color: university.primaryColor }}>
+                    Apply here <ArrowLeft className="rotate-180" size={14} />
+                 </button>
+              </div>
             </form>
           )}
 
           <div className="pt-6 border-t border-slate-200 text-center">
             {mode === 'LOGIN' ? (
               <p className="text-sm text-slate-500 font-medium">
-                New user? <button onClick={() => { setMode('REGISTER'); setSuccessMsg(''); }} className="text-blue-600 font-bold hover:underline">Create Account</button>
+                New user? <button onClick={() => { setMode('REGISTER'); setSuccessMsg(''); }} className="font-bold hover:underline" style={{ color: university.primaryColor }}>Create Account</button>
               </p>
             ) : (
               <p className="text-sm text-slate-500 font-medium">
-                Already have an account? <button onClick={() => { setMode('LOGIN'); setIsSecretVerified(false); setSuccessMsg(''); }} className="text-blue-600 font-bold hover:underline">Log In</button>
+                Already have an account? <button onClick={() => { setMode('LOGIN'); setIsSecretVerified(false); setSuccessMsg(''); }} className="font-bold hover:underline" style={{ color: university.primaryColor }}>Log In</button>
               </p>
             )}
           </div>

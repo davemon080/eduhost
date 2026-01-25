@@ -1,6 +1,7 @@
 
-const CACHE_NAME = 'edustream-cache-v2';
+const CACHE_NAME = 'edustream-cache-v3';
 const ASSETS = [
+  './',
   './index.html',
   './manifest.json',
   'https://cdn.tailwindcss.com',
@@ -12,6 +13,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
+      console.log('PWA: Pre-caching assets');
       return cache.addAll(ASSETS);
     })
   );
@@ -31,17 +33,26 @@ self.addEventListener('activate', (event) => {
 
 // Fetch Event
 self.addEventListener('fetch', (event) => {
-  // Handle navigation requests (e.g., when the user reloads or launches from home screen)
+  // Navigation strategy: Try network, fallback to cached index.html for 404s or offline
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match('./index.html');
-      })
+      fetch(event.request)
+        .then((response) => {
+          // If the network request is 404 (e.g. route not found on server), use the app shell
+          if (response.status === 404) {
+            return caches.match('./index.html') || response;
+          }
+          return response;
+        })
+        .catch(() => {
+          // If network is completely unavailable, use the app shell
+          return caches.match('./index.html');
+        })
     );
     return;
   }
 
-  // Handle other assets (CSS, JS, Images)
+  // Asset strategy: Cache-First, then Network
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -49,19 +60,16 @@ self.addEventListener('fetch', (event) => {
       }
 
       return fetch(event.request).then((networkResponse) => {
-        // Only cache valid responses
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+        // Cache external assets like fonts or CDN scripts for offline use
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-
         return networkResponse;
       }).catch(() => {
-        // Optional: Return a custom offline image if a fetch for an image fails
+        // Silent fail for non-critical assets
       });
     })
   );

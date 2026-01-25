@@ -1,9 +1,9 @@
 
 {
-  "name": "EduStream Pro",
-  "short_name": "EduStream",
-  "description": "Institutional Online Learning Platform",
-  "start_url": "index.html",
+  "name": "Paragon",
+  "short_name": "Paragon",
+  "description": "Institutional Online Learning Hub",
+  "start_url": ".",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f8fafc",
